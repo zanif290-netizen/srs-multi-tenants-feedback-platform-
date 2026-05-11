@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeedbackHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0e14;--bg2:#13161f;--bg3:#1a1e2b;--bg4:#20253a;
+  --border:#ffffff12;--border2:#ffffff20;
+  --text:#f0f2ff;--text2:#8892b0;--text3:#5a6380;
+  --accent:#6c8fff;--accent2:#4d6fe8;--accent-glow:rgba(108,143,255,0.15);
+  --green:#2dd4a0;--red:#ff6b6b;--amber:#ffbe5c;--purple:#c084fc;
+  --radius:10px;--radius2:16px;--radius3:22px;
+  --font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+#root{min-height:100vh}
+button{font-family:var(--font-body);cursor:pointer;border:none;outline:none}
+input,textarea,select{font-family:var(--font-body);outline:none}
+a{color:inherit;text-decoration:none}
+
+.page{min-height:100vh;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── NAV ─────────────────────────────────────────────────────────────────── */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100}
+.nav-brand{display:flex;align-items:center;gap:10px;font-family:var(--font-head);font-weight:700;font-size:18px;color:var(--text);cursor:pointer}
+.nav-brand-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff}
+.nav-actions{display:flex;align-items:center;gap:10px}
+
+/* ─── BUTTONS ─────────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;transition:all .15s;cursor:pointer}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+.btn-danger{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.2)}
+.btn-danger:hover{background:rgba(255,107,107,.2)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-icon{padding:7px;border-radius:var(--radius);background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.btn-icon:hover{background:var(--bg4);color:var(--text)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ─── INPUTS ──────────────────────────────────────────────────────────────── */
+.input{width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:13px;transition:border .15s}
+.input:focus{border-color:var(--accent)}
+.input::placeholder{color:var(--text3)}
+textarea.input{resize:vertical;min-height:90px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--text2);font-weight:500;letter-spacing:.03em}
+.field-error{color:var(--red);font-size:11px;margin-top:2px}
+.input-group{display:flex;align-items:center}
+.input-group-pre{padding:9px 10px;background:var(--bg4);border:1px solid var(--border2);border-right:none;border-radius:var(--radius) 0 0 var(--radius);color:var(--text3);font-size:12px;white-space:nowrap}
+.input-group .input{border-radius:0 var(--radius) var(--radius) 0}
+
+/* ─── CARDS ───────────────────────────────────────────────────────────────── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:1.5rem}
+.card-sm{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+
+/* ─── BADGE ───────────────────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-green{background:rgba(45,212,160,.12);color:var(--green);border:1px solid rgba(45,212,160,.2)}
+.badge-red{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.2)}
+.badge-amber{background:rgba(255,190,92,.12);color:var(--amber);border:1px solid rgba(255,190,92,.2)}
+.badge-blue{background:rgba(108,143,255,.12);color:var(--accent);border:1px solid rgba(108,143,255,.2)}
+
+/* ─── TOAST ───────────────────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:9999;animation:slideUp .2s ease;display:flex;align-items:center;gap:8px;max-width:320px}
+.toast-success{background:#0d2b1f;border:1px solid rgba(45,212,160,.3);color:var(--green)}
+.toast-error{background:#2b0d0d;border:1px solid rgba(255,107,107,.3);color:var(--red)}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── LANDING ─────────────────────────────────────────────────────────────── */
+.hero{text-align:center;padding:6rem 2rem 5rem;max-width:760px;margin:0 auto}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:var(--accent-glow);border:1px solid rgba(108,143,255,.2);color:var(--accent);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:1.5rem}
+.hero h1{font-family:var(--font-head);font-size:clamp(2.4rem,5vw,3.5rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:1.2rem}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:16px;color:var(--text2);max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:5rem auto 0;padding:0 2rem}
+.feature-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:1.5rem;transition:border-color .2s,transform .2s}
+.feature-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.feature-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:1rem}
+.feature-card h3{font-family:var(--font-head);font-size:14px;font-weight:600;margin-bottom:.4rem}
+.feature-card p{font-size:12px;color:var(--text2);line-height:1.6}
+
+/* ─── AUTH ────────────────────────────────────────────────────────────────── */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--bg)}
+.auth-box{width:100%;max-width:400px}
+.auth-box h2{font-family:var(--font-head);font-size:22px;font-weight:700;margin-bottom:.3rem}
+.auth-box p{color:var(--text2);font-size:13px;margin-bottom:1.8rem}
+.auth-form{display:flex;flex-direction:column;gap:14px}
+.auth-footer{text-align:center;margin-top:1.2rem;font-size:12px;color:var(--text3)}
+.auth-footer a{color:var(--accent);cursor:pointer}
+.auth-footer a:hover{text-decoration:underline}
+.alert{padding:10px 14px;border-radius:var(--radius);font-size:12px;margin-bottom:12px}
+.alert-error{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);color:var(--red)}
+
+/* ─── DASHBOARD ───────────────────────────────────────────────────────────── */
+.dash-layout{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-header{padding:1.2rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-family:var(--font-head);font-weight:700;font-size:15px;cursor:pointer}
+.sidebar-nav{flex:1;padding:.75rem .75rem;display:flex;flex-direction:column;gap:2px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius);font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s}
+.sidebar-item:hover{background:var(--bg3);color:var(--text)}
+.sidebar-item.active{background:var(--accent-glow);color:var(--accent);font-weight:500}
+.sidebar-item svg{width:15px;height:15px;flex-shrink:0}
+.sidebar-footer{padding:.75rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s}
+.sidebar-link:hover{background:var(--bg3);color:var(--text2)}
+.dash-main{flex:1;overflow-y:auto;min-width:0}
+.dash-header{padding:1.5rem 2rem 0;border-bottom:1px solid var(--border);margin-bottom:0}
+.dash-header h1{font-family:var(--font-head);font-size:20px;font-weight:700;margin-bottom:.2rem}
+.dash-header p{color:var(--text2);font-size:12px;padding-bottom:1.2rem}
+.dash-content{padding:2rem}
+
+/* ─── KPI ─────────────────────────────────────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:2rem}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:1.2rem 1.4rem}
+.kpi-label{font-size:11px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.6rem;font-weight:500}
+.kpi-value{font-family:var(--font-head);font-size:26px;font-weight:700;line-height:1}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:.4rem}
+
+/* ─── CHARTS ──────────────────────────────────────────────────────────────── */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:2rem}
+.chart-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:1.4rem}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:1.2rem;color:var(--text)}
+.chart-canvas{position:relative;height:180px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:100%;padding-bottom:24px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:opacity .15s;cursor:pointer;position:relative}
+.bar:hover{opacity:.8}
+.bar-label{font-size:11px;color:var(--text3);margin-top:4px;position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.bar-val{font-size:10px;color:var(--text2);position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;opacity:0;transition:opacity .15s}
+.bar:hover .bar-val{opacity:1}
+.line-chart-wrap{height:140px;position:relative;overflow:hidden}
+svg.line-chart{width:100%;height:100%}
+
+/* ─── TABLE ───────────────────────────────────────────────────────────────── */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.4rem;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.table-header h2{font-size:14px;font-weight:600}
+.table-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.table-search{position:relative}
+.table-search input{padding-left:28px;width:200px}
+.table-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+select.input{width:auto;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 1.4rem;text-align:left;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3)}
+td{padding:12px 1.4rem;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.stars{color:var(--amber);letter-spacing:1px;font-size:13px}
+.stars .empty{color:var(--bg4);filter:none}
+.comment-cell{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.4rem;border-top:1px solid var(--border);font-size:12px;color:var(--text2)}
+.page-btns{display:flex;gap:4px}
+.page-btn{padding:4px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s}
+.page-btn:hover:not(:disabled){background:var(--bg4);color:var(--text)}
+.page-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.page-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* ─── PUBLIC PAGE ─────────────────────────────────────────────────────────── */
+.public-wrap{min-height:100vh;background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:3rem 1.5rem}
+.public-card{width:100%;max-width:520px}
+.public-header{text-align:center;margin-bottom:2rem}
+.public-logo{width:64px;height:64px;border-radius:var(--radius2);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 1rem;font-family:var(--font-head);font-weight:800;color:#fff}
+.public-title{font-family:var(--font-head);font-size:24px;font-weight:700;margin-bottom:.5rem}
+.public-welcome{color:var(--text2);font-size:14px;line-height:1.6;max-width:380px;margin:0 auto}
+.star-row{display:flex;gap:6px;margin:.5rem 0}
+.star-btn{background:none;border:none;font-size:28px;cursor:pointer;transition:transform .1s;padding:0;line-height:1}
+.star-btn:hover{transform:scale(1.15)}
+.success-card{text-align:center;padding:3rem 2rem}
+.success-icon{font-size:48px;margin-bottom:1rem}
+.success-title{font-family:var(--font-head);font-size:20px;font-weight:700;margin-bottom:.5rem}
+.success-sub{color:var(--text2);font-size:13px;margin-bottom:1.5rem}
+.not-found{text-align:center;padding:6rem 2rem}
+.not-found h2{font-family:var(--font-head);font-size:22px;font-weight:700;margin:1rem 0 .5rem}
+.not-found p{color:var(--text2);font-size:13px}
+
+/* ─── SETTINGS ────────────────────────────────────────────────────────────── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+.settings-preview{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:1.5rem}
+.settings-preview-title{font-size:12px;color:var(--text3);margin-bottom:1rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.preview-page{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;text-align:center}
+.preview-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto .7rem;font-weight:800;color:#fff;font-family:var(--font-head)}
+.preview-name{font-family:var(--font-head);font-size:15px;font-weight:700;margin-bottom:.3rem}
+.preview-msg{font-size:11px;color:var(--text2);margin-bottom:.8rem}
+.preview-btn{padding:6px 18px;border-radius:6px;color:#fff;font-size:12px;font-weight:600;display:inline-block}
+
+/* ─── CONFIRM MODAL ───────────────────────────────────────────────────────── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:2rem;max-width:380px;width:90%;animation:fadeIn .2s ease}
+.modal h3{font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:.5rem}
+.modal p{color:var(--text2);font-size:13px;margin-bottom:1.5rem;line-height:1.6}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+/* ─── UTIL ────────────────────────────────────────────────────────────────── */
+.divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+.tag{display:inline-block;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--text2)}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--text3)}
+.empty-state .empty-icon{font-size:36px;margin-bottom:1rem;opacity:.5}
+.empty-state p{font-size:13px;max-width:240px;margin:0 auto .8rem}
+.spinner{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flex{display:flex}.items-center{align-items:center}.gap-2{gap:8px}.gap-3{gap:12px}.ml-auto{margin-left:auto}
+.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-4{margin-top:1rem}.mb-2{margin-bottom:.5rem}.mb-4{margin-bottom:1rem}
+.text-sm{font-size:12px}.text-muted{color:var(--text2)}.text-danger{color:var(--red)}.text-success{color:var(--green)}
+.font-mono{font-family:monospace;font-size:12px}
+.color-swatch{width:28px;height:28px;border-radius:6px;border:2px solid var(--border2);cursor:pointer;flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA STORE — in-memory, simulates backend
+// ═══════════════════════════════════════════════════════════════════════════
+const Store = (() => {
+  const tenants = {
+    't1': { id:'t1', businessName:'Acme Corp', email:'demo@acmecorp.com', password:'password123',
+      slug:'acme-corp', logoUrl:'', brandColor:'#6c8fff', welcomeMessage:"We value your feedback! Help us serve you better.", createdAt: new Date(Date.now()-30*864e5).toISOString() },
+    't2': { id:'t2', businessName:'TechStart', email:'hello@techstart.io', password:'password123',
+      slug:'techstart', logoUrl:'', brandColor:'#c084fc', welcomeMessage:'Share your experience with our team.', createdAt: new Date(Date.now()-20*864e5).toISOString() },
+  };
+  const comments = [
+    'Absolutely fantastic service! Exceeded all expectations.',
+    'Great experience overall. Minor delays but the result was excellent.',
+    'This is the best product I have used. Highly recommend!',
+    'Decent service but room for improvement in communication.',
+    'Exceptional quality and attention to detail. Team went above and beyond.',
+    'Had some issues with response time. Support was helpful though.',
+    'Really pleased with the results. Would give 5 stars if onboarding was smoother.',
+    'Outstanding! Professional team, clear communication, excellent results.',
+    'Very good service. Knowledgeable and proactive. Small pricing concerns.',
+    'Very disappointing. Multiple follow-ups needed. Needs improvement.',
+    'Cannot recommend highly enough. Transformed our business!',
+    'Average experience. Some features worked, others felt incomplete.',
+    'Wonderful product! The interface is intuitive and the support team is incredibly helpful.',
+    'Good value for money. Delivery was fast and the quality exceeded my expectations.',
+    'Solid service. Had a few hiccups during setup but the team resolved them quickly.',
+  ];
+  const names = ['Sarah Johnson','Ahmad Khan','Maria Garcia','James Wilson','Fatima Ali','Tom Brown','Priya Sharma','Carlos Rodriguez','Emma Davis','Luke Miller','Aisha Mohammed','Robert Chen','Yuki Tanaka','Sofia Rossi','Oliver Müller'];
+  const emails = names.map(n=>n.toLowerCase().replace(' ','.')+'@example.com');
+
+  const feedbacks = {};
+  tenants.t1.id && [0,1,2,3,4,5,6,7,8,9,10,11].forEach((i)=>{
+    const id='f'+i; const daysAgo=Math.floor(Math.random()*28);
+    const d=new Date(Date.now()-daysAgo*864e5-Math.random()*864e5);
+    feedbacks[id]={ id, tenantId:'t1', rating:i<2?5:i<4?4:i<6?3:i<8?2:i<10?1:i===10?5:3,
+      comment:comments[i%comments.length], customerName:names[i%names.length],
+      customerEmail:emails[i%emails.length], createdAt:d.toISOString() };
+  });
+  [12,13,14].forEach((i)=>{
+    const id='f'+i; const d=new Date(Date.now()-Math.random()*15*864e5);
+    feedbacks[id]={ id, tenantId:'t2', rating:[5,4,3][i-12],
+      comment:comments[i%comments.length], customerName:names[i%names.length],
+      customerEmail:emails[i%emails.length], createdAt:d.toISOString() };
+  });
+
+  let session = null;
+  const subs = [];
+  const notify = ()=> subs.forEach(fn=>fn());
+
+  return {
+    subscribe(fn){ subs.push(fn); return ()=>subs.splice(subs.indexOf(fn),1) },
+    getSession(){ return session },
+    login(email,password){
+      const t = Object.values(tenants).find(t=>t.email===email);
+      if(!t) return {error:'No account found with that email'};
+      if(t.password!==password) return {error:'Invalid password'};
+      session=t; notify(); return {tenant:t};
+    },
+    register(data){
+      if(Object.values(tenants).some(t=>t.email===data.email)) return {error:'Email already registered'};
+      if(Object.values(tenants).some(t=>t.slug===data.slug)) return {error:'Slug already taken'};
+      if(!/^[a-z0-9-]+$/.test(data.slug)) return {error:'Slug: lowercase letters, numbers, hyphens only'};
+      if(data.slug.length<3) return {error:'Slug must be at least 3 characters'};
+      const t={ id:'t'+Date.now(), ...data, password:data.password, logoUrl:'', brandColor:'#6c8fff', welcomeMessage:'', createdAt:new Date().toISOString() };
+      tenants[t.id]=t; session=t; notify(); return {tenant:t};
+    },
+    logout(){ session=null; notify() },
+    getTenant(id){ return tenants[id] },
+    getTenantBySlug(slug){ return Object.values(tenants).find(t=>t.slug===slug) },
+    updateTenant(id,data){ Object.assign(tenants[id],data); if(session?.id===id) session=tenants[id]; notify(); return tenants[id] },
+    getFeedbacks(tenantId, opts={}){
+      let items = Object.values(feedbacks).filter(f=>f.tenantId===tenantId);
+      if(opts.rating) items=items.filter(f=>f.rating===+opts.rating);
+      if(opts.search) { const q=opts.search.toLowerCase(); items=items.filter(f=>f.comment.toLowerCase().includes(q)||f.customerName.toLowerCase().includes(q)); }
+      const sortBy=opts.sortBy||'createdAt', order=opts.order||'desc';
+      items.sort((a,b)=>{ const v=sortBy==='createdAt'?new Date(a.createdAt)-new Date(b.createdAt):a.rating-b.rating; return order==='asc'?v:-v; });
+      const total=items.length, page=opts.page||1, limit=opts.limit||10;
+      return { items:items.slice((page-1)*limit,page*limit), total, page, pages:Math.ceil(total/limit)||1 };
+    },
+    submitFeedback(slug,data){
+      const t=this.getTenantBySlug(slug);
+      if(!t) return {error:'Not found'};
+      const id='f'+Date.now();
+      feedbacks[id]={ id, tenantId:t.id, ...data, createdAt:new Date().toISOString() };
+      notify(); return {id};
+    },
+    deleteFeedback(id, tenantId){
+      if(!feedbacks[id]||feedbacks[id].tenantId!==tenantId) return {error:'Not found'};
+      delete feedbacks[id]; notify(); return {success:true};
+    },
+    getStats(tenantId){
+      const items=Object.values(feedbacks).filter(f=>f.tenantId===tenantId);
+      const total=items.length;
+      const avg=total?Math.round(items.reduce((s,f)=>s+f.rating,0)/total*10)/10:0;
+      const dist=[1,2,3,4,5].map(r=>({rating:r,count:items.filter(f=>f.rating===r).length}));
+      const dayCounts={};
+      for(let i=29;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); dayCounts[d.toISOString().slice(0,10)]=0; }
+      items.forEach(f=>{ const k=f.createdAt.slice(0,10); if(k in dayCounts) dayCounts[k]++; });
+      const timeline=Object.entries(dayCounts).map(([date,count])=>({date,count}));
+      return {total,averageRating:avg,ratingDistribution:dist,timeline};
+    }
+  };
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MINI FRAMEWORK — reactive state + rendering
+// ═══════════════════════════════════════════════════════════════════════════
+let appState = {
+  route: 'landing',
+  routeParam: null,
+  session: Store.getSession(),
+  toast: null,
+};
+let toastTimer;
+function setState(patch){
+  appState = {...appState,...patch};
+  render();
+}
+function navigate(route, param=null){ setState({route, routeParam:param}) }
+function showToast(msg, type='success'){
+  clearTimeout(toastTimer);
+  setState({toast:{msg,type}});
+  toastTimer=setTimeout(()=>setState({toast:null}),3000);
+}
+
+Store.subscribe(()=>{ appState.session=Store.getSession(); render(); });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function svgIcon(name){
+  const icons={
+    chart:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="3" height="7" rx="1"/><rect x="6.5" y="4" width="3" height="11" rx="1"/><rect x="12" y="1" width="3" height="14" rx="1"/></svg>`,
+    messages:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H2a1 1 0 00-1 1v8a1 1 0 001 1h4l2 2 2-2h4a1 1 0 001-1V3a1 1 0 00-1-1z"/></svg>`,
+    settings:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>`,
+    logout:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H2a1 1 0 01-1-1V3a1 1 0 011-1h4M11 11l3-3-3-3M14 8H6"/></svg>`,
+    link:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9a3 3 0 004.24.02l2-2a3 3 0 00-4.24-4.24L6.5 4.27"/><path d="M10 7a3 3 0 00-4.24-.02l-2 2A3 3 0 007.99 13.2l1.5-1.5"/></svg>`,
+    trash:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2 4 14 4"/><path d="M12 4l-.8 9.2a1 1 0 01-1 .8H5.8a1 1 0 01-1-.8L4 4M6 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4"/></svg>`,
+    search:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M14 14l-3-3"/></svg>`,
+    check:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2 8 6 12 14 4"/></svg>`,
+    star:`<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.85 3.75L14 5.5l-3 2.92.71 4.13L8 10.4l-3.71 2.15.71-4.13L2 5.5l4.15-.75L8 1z"/></svg>`,
+    home:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6L8 1l6 5v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/><path d="M6 15v-5h4v5"/></svg>`,
+  };
+  return icons[name]||'';
+}
+
+function Stars(rating, max=5){
+  return Array.from({length:max},(_,i)=>`<span class="${i<rating?'':'empty'}">${i<rating?'★':'☆'}</span>`).join('');
+}
+
+// ─── LANDING ────────────────────────────────────────────────────────────────
+function LandingPage(){
+  return `
+  <nav class="nav">
+    <div class="nav-brand" onclick="navigate('landing')">
+      <div class="nav-brand-icon">F</div> FeedbackHub
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="navigate('login')">Sign in</button>
+      <button class="btn btn-primary" onclick="navigate('register')">Get started free</button>
+    </div>
+  </nav>
+  <div class="page">
+    <div class="hero">
+      <div class="hero-eyebrow">
+        <span style="width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block"></span>
+        Multi-tenant SaaS — one platform, infinite businesses
+      </div>
+      <h1>Collect feedback that <span>actually matters</span></h1>
+      <p>Register your business, get a branded URL, and start collecting star ratings and comments from customers — in minutes.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" style="padding:11px 26px;font-size:14px" onclick="navigate('register')">Start for free →</button>
+        <button class="btn btn-ghost" style="padding:11px 26px;font-size:14px" onclick="navigate('public','acme-corp')">View demo page</button>
+      </div>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(108,143,255,.12)">🔗</div>
+        <h3>Unique branded URL</h3>
+        <p>Every business gets a custom slug like /your-brand. Share it anywhere — email, QR code, social media.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(45,212,160,.12)">📊</div>
+        <h3>Real-time analytics</h3>
+        <p>Rating distributions, 30-day submission trends, averages — all updated the moment feedback arrives.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(192,132,252,.12)">🔒</div>
+        <h3>Strict data isolation</h3>
+        <p>Your feedback is completely private. Zero cross-tenant data leakage — guaranteed at the API level.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(255,190,92,.12)">🎨</div>
+        <h3>Brand customization</h3>
+        <p>Set your logo, brand color, and welcome message. Customers see your brand, not ours.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(255,107,107,.12)">⚡</div>
+        <h3>Instant setup</h3>
+        <p>Register, set your slug, and your public page is live. No code, no configuration, no waiting.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(45,212,160,.12)">🔍</div>
+        <h3>Search & filter</h3>
+        <p>Find specific feedback by keyword, rating, or date. Sort by newest, oldest, or star rating.</p>
+      </div>
+    </div>
+    <div style="text-align:center;padding:4rem 2rem;color:var(--text3);font-size:12px">
+      Built with Next.js · Prisma · Tailwind CSS · Recharts
+      <br><span style="color:var(--text3);margin-top:.4rem;display:block">Demo: demo@acmecorp.com / password123</span>
+    </div>
+  </div>`;
+}
+
+// ─── AUTH PAGES ──────────────────────────────────────────────────────────────
+function LoginPage(){
+  return `
+  <nav class="nav">
+    <div class="nav-brand" onclick="navigate('landing')">
+      <div class="nav-brand-icon">F</div> FeedbackHub
+    </div>
+  </nav>
+  <div class="page auth-wrap">
+    <div class="auth-box">
+      <h2>Welcome back</h2>
+      <p>Sign in to your dashboard</p>
+      <div id="auth-error"></div>
+      <div class="auth-form">
+        <div class="field"><label>Email</label><input class="input" id="login-email" type="email" placeholder="you@company.com" value="demo@acmecorp.com"/></div>
+        <div class="field"><label>Password</label><input class="input" id="login-password" type="password" placeholder="••••••••" value="password123"/></div>
+        <button class="btn btn-primary" id="login-btn" onclick="handleLogin()" style="margin-top:4px">Sign in →</button>
+      </div>
+      <div class="auth-footer">No account? <a onclick="navigate('register')">Register free</a></div>
+      <div style="margin-top:1rem;padding:10px;background:var(--bg3);border-radius:var(--radius);font-size:11px;color:var(--text3)">
+        Demo credentials pre-filled ↑
+      </div>
+    </div>
+  </div>`;
+}
+
+function RegisterPage(){
+  return `
+  <nav class="nav">
+    <div class="nav-brand" onclick="navigate('landing')">
+      <div class="nav-brand-icon">F</div> FeedbackHub
+    </div>
+  </nav>
+  <div class="page auth-wrap">
+    <div class="auth-box">
+      <h2>Create your account</h2>
+      <p>Start collecting feedback in minutes</p>
+      <div id="auth-error"></div>
+      <div class="auth-form">
+        <div class="field"><label>Business Name</label><input class="input" id="reg-name" placeholder="Acme Corp" /></div>
+        <div class="field"><label>Email</label><input class="input" id="reg-email" type="email" placeholder="you@company.com" /></div>
+        <div class="field"><label>Password (min 8 chars)</label><input class="input" id="reg-password" type="password" placeholder="••••••••" /></div>
+        <div class="field">
+          <label>Your unique slug</label>
+          <div class="input-group">
+            <span class="input-group-pre">app.feedbackhub.com/</span>
+            <input class="input" id="reg-slug" placeholder="your-brand" />
+          </div>
+          <span class="field-error" style="display:none" id="slug-hint">Lowercase letters, numbers, hyphens only</span>
+        </div>
+        <button class="btn btn-primary" onclick="handleRegister()" style="margin-top:4px">Create account →</button>
+      </div>
+      <div class="auth-footer">Already have an account? <a onclick="navigate('login')">Sign in</a></div>
+    </div>
+  </div>`;
+}
+
+// ─── DASHBOARD SHELL ─────────────────────────────────────────────────────────
+function DashboardShell(tab, content){
+  const t = appState.session;
+  return `
+  <div class="dash-layout page">
+    <aside class="sidebar">
+      <div class="sidebar-header" onclick="navigate('landing')">
+        <div class="nav-brand-icon" style="width:26px;height:26px;font-size:11px">F</div>
+        FeedbackHub
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-item ${tab==='overview'?'active':''}" onclick="navigate('dashboard')">
+          ${svgIcon('chart')} Overview
+        </div>
+        <div class="sidebar-item ${tab==='feedback'?'active':''}" onclick="navigate('feedback')">
+          ${svgIcon('messages')} Feedback
+        </div>
+        <div class="sidebar-item ${tab==='settings'?'active':''}" onclick="navigate('settings')">
+          ${svgIcon('settings')} Settings
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-link" onclick="navigate('public',appState.session?.slug)">
+          ${svgIcon('link')} View public page
+        </div>
+        <div class="sidebar-link" onclick="handleLogout()" style="color:var(--red)">
+          ${svgIcon('logout')} Sign out
+        </div>
+        <div style="padding:8px 10px;font-size:11px;color:var(--text3);margin-top:4px;border-top:1px solid var(--border)">
+          <div style="font-weight:500;color:var(--text2)">${t?.businessName||''}</div>
+          <div class="font-mono" style="margin-top:2px">/${t?.slug||''}</div>
+        </div>
+      </div>
+    </aside>
+    <div class="dash-main">${content}</div>
+  </div>`;
+}
+
+// ─── OVERVIEW / ANALYTICS ────────────────────────────────────────────────────
+function OverviewPage(){
+  const t = appState.session; if(!t) return '';
+  const stats = Store.getStats(t.id);
+
+  const maxTl = Math.max(...stats.timeline.map(x=>x.count),1);
+  const w=460, h=120, pad=10;
+  const pts = stats.timeline.map((d,i)=>{
+    const x = pad + i*(w-2*pad)/(stats.timeline.length-1||1);
+    const y = h - pad - (d.count/maxTl)*(h-2*pad);
+    return [x,y];
+  });
+  const pathD = pts.map((p,i)=>(i===0?`M${p[0]},${p[1]}`:`L${p[0]},${p[1]}`)).join(' ');
+  const areaD = `${pathD} L${pts[pts.length-1][0]},${h-pad} L${pts[0][0]},${h-pad} Z`;
+  const maxBar = Math.max(...stats.ratingDistribution.map(d=>d.count),1);
+
+  const ratingColors={5:'#2dd4a0',4:'#6c8fff',3:'#ffbe5c',2:'#ff9f6b',1:'#ff6b6b'};
+
+  return DashboardShell('overview', `
+    <div class="dash-header">
+      <h1>Overview</h1>
+      <p>Analytics for <strong>${t.businessName}</strong></p>
+    </div>
+    <div class="dash-content">
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">Total Feedback</div>
+          <div class="kpi-value">${stats.total}</div>
+          <div class="kpi-sub">All time submissions</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Average Rating</div>
+          <div class="kpi-value" style="color:${stats.averageRating>=4?'var(--green)':stats.averageRating>=3?'var(--amber)':'var(--red)'}">${stats.averageRating}</div>
+          <div class="kpi-sub">Out of 5.0 stars</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">5-Star Reviews</div>
+          <div class="kpi-value" style="color:var(--green)">${stats.ratingDistribution.find(d=>d.rating===5)?.count||0}</div>
+          <div class="kpi-sub">${stats.total?Math.round((stats.ratingDistribution.find(d=>d.rating===5)?.count||0)/stats.total*100):0}% of total</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Your Public URL</div>
+          <div class="kpi-value" style="font-size:15px;font-family:var(--font-body)" onclick="navigate('public','${t.slug}')" style="cursor:pointer">
+            <span style="color:var(--accent);cursor:pointer;font-size:14px;font-family:monospace">/${t.slug}</span>
+          </div>
+          <div class="kpi-sub" onclick="navigate('public','${t.slug}')" style="cursor:pointer;color:var(--accent)">Click to preview →</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-box">
+          <div class="chart-title">Submissions — Last 30 Days</div>
+          <div style="height:140px;overflow:hidden">
+            <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" width="100%" height="100%" class="line-chart">
+              <defs>
+                <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity=".3"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="${areaD}" fill="url(#lg)"/>
+              <path d="${pathD}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              ${pts.map((p,i)=>stats.timeline[i].count>0?`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="var(--accent)"/>`:'').join('')}
+            </svg>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text3)">
+            <span>${stats.timeline[0]?.date?.slice(5)||''}</span>
+            <span>${stats.timeline[29]?.date?.slice(5)||''}</span>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Rating Distribution</div>
+          <div class="bar-chart" style="gap:8px">
+            ${stats.ratingDistribution.slice().reverse().map(d=>`
+              <div class="bar-wrap">
+                <div class="bar" style="height:${Math.max(4,d.count/maxBar*120)}px;background:${ratingColors[d.rating]}20;border:1px solid ${ratingColors[d.rating]}40;position:relative">
+                  <span class="bar-val" style="color:${ratingColors[d.rating]}">${d.count}</span>
+                  <span class="bar-label" style="color:${ratingColors[d.rating]}">${d.rating}★</span>
+                </div>
+                <span style="font-size:11px;color:var(--text3);margin-top:24px">${d.count}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      ${stats.total===0?`<div class="card" style="text-align:center;padding:3rem;border-style:dashed">
+        <div style="font-size:36px;margin-bottom:1rem">📭</div>
+        <div style="font-family:var(--font-head);font-size:16px;font-weight:600;margin-bottom:.4rem">No feedback yet</div>
+        <div style="color:var(--text2);font-size:13px;margin-bottom:1.2rem">Share your public URL to start collecting responses.</div>
+        <button class="btn btn-primary" onclick="navigate('public','${t.slug}')">View public page →</button>
+      </div>`:''}
+    </div>`);
+}
+
+// ─── FEEDBACK PAGE ────────────────────────────────────────────────────────────
+let fbState = { page:1, sortBy:'createdAt', order:'desc', rating:'', search:'' };
+function FeedbackPage(){
+  const t = appState.session; if(!t) return '';
+  const data = Store.getFeedbacks(t.id, fbState);
+
+  const rows = data.items.map(f=>`
+    <tr>
+      <td><div class="stars">${Stars(f.rating)}</div></td>
+      <td class="comment-cell" title="${f.comment.replace(/"/g,'&quot;')}">${f.comment}</td>
+      <td style="white-space:nowrap">
+        <div style="font-size:13px">${f.customerName}</div>
+        <div style="font-size:11px;color:var(--text3)">${f.customerEmail}</div>
+      </td>
+      <td style="color:var(--text3);font-size:11px;white-space:nowrap">${new Date(f.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+      <td>
+        <button class="btn-icon" onclick="confirmDelete('${f.id}')" title="Delete">
+          ${svgIcon('trash')}
+        </button>
+      </td>
+    </tr>`).join('');
+
+  const pages = Array.from({length:data.pages},(_,i)=>i+1);
+
+  return DashboardShell('feedback', `
+    <div class="dash-header">
+      <h1>Feedback</h1>
+      <p>${data.total} total response${data.total!==1?'s':''}</p>
+    </div>
+    <div class="dash-content">
+      <div class="table-wrap">
+        <div class="table-header">
+          <h2>All responses</h2>
+          <div class="table-controls">
+            <div class="table-search">
+              <span class="table-search-icon">${svgIcon('search')}</span>
+              <input class="input" id="fb-search" placeholder="Search…" value="${fbState.search}" oninput="debounceSearch(this.value)" style="padding-left:30px;width:180px"/>
+            </div>
+            <select class="input" onchange="fbFilter('rating',this.value)" style="width:130px">
+              <option value="" ${!fbState.rating?'selected':''}>All ratings</option>
+              ${[5,4,3,2,1].map(r=>`<option value="${r}" ${fbState.rating==r?'selected':''}>${r} stars</option>`).join('')}
+            </select>
+            <select class="input" onchange="fbSort(this.value)" style="width:150px">
+              <option value="createdAt-desc" ${fbState.sortBy==='createdAt'&&fbState.order==='desc'?'selected':''}>Newest first</option>
+              <option value="createdAt-asc" ${fbState.sortBy==='createdAt'&&fbState.order==='asc'?'selected':''}>Oldest first</option>
+              <option value="rating-desc" ${fbState.sortBy==='rating'&&fbState.order==='desc'?'selected':''}>Highest rating</option>
+              <option value="rating-asc" ${fbState.sortBy==='rating'&&fbState.order==='asc'?'selected':''}>Lowest rating</option>
+            </select>
+          </div>
+        </div>
+        ${data.items.length===0?`
+          <div class="empty-state">
+            <div class="empty-icon">💬</div>
+            <p>No feedback found matching your filters</p>
+            ${fbState.search||fbState.rating?`<button class="btn btn-ghost btn-sm" onclick="clearFilters()">Clear filters</button>`:''}
+          </div>
+        `:`<table>
+          <thead><tr>
+            <th style="width:110px">Rating</th>
+            <th>Comment</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th style="width:50px"></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="pagination">
+          <span>Showing ${(data.page-1)*10+1}–${Math.min(data.page*10,data.total)} of ${data.total}</span>
+          <div class="page-btns">
+            <button class="page-btn" onclick="fbPage(${data.page-1})" ${data.page<=1?'disabled':''}>‹</button>
+            ${pages.slice(Math.max(0,data.page-3),Math.min(pages.length,data.page+2)).map(p=>`<button class="page-btn ${p===data.page?'active':''}" onclick="fbPage(${p})">${p}</button>`).join('')}
+            <button class="page-btn" onclick="fbPage(${data.page+1})" ${data.page>=data.pages?'disabled':''}>›</button>
+          </div>
+        </div>`}
+      </div>
+    </div>
+    <div id="confirm-modal"></div>`);
+}
+
+// ─── SETTINGS PAGE ────────────────────────────────────────────────────────────
+let settingsForm = null;
+function initSettingsForm(){
+  const t = appState.session; if(!t) return;
+  if(!settingsForm) settingsForm = { businessName:t.businessName, logoUrl:t.logoUrl||'', brandColor:t.brandColor||'#6c8fff', welcomeMessage:t.welcomeMessage||'' };
+}
+function SettingsPage(){
+  const t = appState.session; if(!t) return '';
+  initSettingsForm();
+  const f = settingsForm;
+  return DashboardShell('settings', `
+    <div class="dash-header">
+      <h1>Settings</h1>
+      <p>Customize your public feedback page appearance</p>
+    </div>
+    <div class="dash-content">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding:10px 14px;background:var(--bg3);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--text3)">Your public URL:</div>
+        <div class="font-mono" style="color:var(--accent);flex:1">feedbackhub.com/${t.slug}</div>
+        <span class="badge badge-blue">Cannot be changed</span>
+      </div>
+      <div class="settings-grid">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="field">
+            <label>Business Name</label>
+            <input class="input" id="s-name" value="${f.businessName}" oninput="updateSettingsField('businessName',this.value)" />
+          </div>
+          <div class="field">
+            <label>Logo URL (optional)</label>
+            <input class="input" id="s-logo" placeholder="https://…/logo.png" value="${f.logoUrl}" oninput="updateSettingsField('logoUrl',this.value)" />
+          </div>
+          <div class="field">
+            <label>Brand Color</label>
+            <div class="flex items-center gap-2">
+              <input type="color" value="${f.brandColor}" class="color-swatch" oninput="updateSettingsField('brandColor',this.value)" />
+              <input class="input" value="${f.brandColor}" id="s-color-text" oninput="updateSettingsField('brandColor',this.value)" style="width:110px;font-family:monospace" />
+              <span style="font-size:12px;color:var(--text3)">Used for buttons and accents on your page</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Welcome Message</label>
+            <textarea class="input" rows="3" placeholder="Tell customers why their feedback matters…" oninput="updateSettingsField('welcomeMessage',this.value)">${f.welcomeMessage}</textarea>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="saveSettings()">Save changes</button>
+            <button class="btn btn-ghost" onclick="resetSettings()">Discard</button>
+          </div>
+        </div>
+        <div class="settings-preview">
+          <div class="settings-preview-title">Live Preview</div>
+          <div class="preview-page" id="settings-preview-box">
+            ${renderSettingsPreview()}
+          </div>
+        </div>
+      </div>
+    </div>`);
+}
+function renderSettingsPreview(){
+  const f = settingsForm||appState.session; if(!f) return '';
+  const initials = (f.businessName||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `
+    <div class="preview-logo" style="background:${f.brandColor}">${f.logoUrl?`<img src="${f.logoUrl}" style="width:100%;height:100%;object-fit:contain;border-radius:6px" onerror="this.style.display='none';this.nextSibling.style.display='block'"/><span style="display:none">${initials}</span>`:`${initials}`}</div>
+    <div class="preview-name">${f.businessName||'Your Business'}</div>
+    ${f.welcomeMessage?`<div class="preview-msg">${f.welcomeMessage}</div>`:'<div class="preview-msg" style="font-style:italic;opacity:.4">No welcome message set</div>'}
+    <div style="display:flex;gap:3px;justify-content:center;margin:.6rem 0;font-size:20px;color:${f.brandColor}">★★★★★</div>
+    <span class="preview-btn" style="background:${f.brandColor}">Submit Feedback</span>`;
+}
+
+// ─── PUBLIC PAGE ──────────────────────────────────────────────────────────────
+let pubState = { rating:0, hover:0, submitted:false, error:'', fields:{comment:'',customerName:'',customerEmail:''}, errors:{} };
+let pubTenant = null;
+function PublicPage(slug){
+  pubTenant = Store.getTenantBySlug(slug);
+  if(!pubTenant) return `<div class="page public-wrap"><div class="not-found">
+    <div style="font-size:48px">🔍</div>
+    <h2>Page not found</h2>
+    <p>The feedback page <code>/${slug}</code> doesn't exist.</p>
+    <button class="btn btn-ghost" style="margin-top:1rem" onclick="navigate('landing')">← Home</button>
+  </div></div>`;
+
+  const t=pubTenant;
+  const initials=(t.businessName||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+  if(pubState.submitted) return `<div class="page public-wrap"><div class="public-card">
+    <div class="card success-card">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Thank you for your feedback!</div>
+      <div class="success-sub">Your response has been submitted to ${t.businessName}.</div>
+      <button class="btn btn-ghost btn-sm" onclick="pubState.submitted=false;render()">Submit another response</button>
+    </div>
+    <div style="text-align:center;margin-top:1rem;font-size:11px;color:var(--text3)">Powered by FeedbackHub</div>
+  </div></div>`;
+
+  const rating=pubState.rating, hover=pubState.hover;
+  const starLabels=['','Poor','Fair','Good','Very good','Excellent'];
+
+  return `<div class="page public-wrap">
+    <div class="public-card">
+      <div class="public-header">
+        <div class="public-logo" style="background:${t.brandColor}">
+          ${t.logoUrl?`<img src="${t.logoUrl}" style="width:100%;height:100%;object-fit:contain;border-radius:var(--radius2)" onerror="this.style.display='none'"/>${initials}`:initials}
+        </div>
+        <div class="public-title">${t.businessName}</div>
+        <div class="public-welcome">${t.welcomeMessage||"We'd love to hear your feedback!"}</div>
+      </div>
+
+      <div class="card">
+        <div style="height:4px;background:${t.brandColor};margin:-1.5rem -1.5rem 1.5rem;border-radius:var(--radius2) var(--radius2) 0 0;opacity:.7"></div>
+        ${pubState.error?`<div class="alert alert-error">${pubState.error}</div>`:''}
+
+        <div class="field" style="margin-bottom:1.2rem">
+          <label>How would you rate us? <span style="color:var(--red)">*</span></label>
+          <div class="star-row" id="star-row">
+            ${[1,2,3,4,5].map(s=>`
+              <button class="star-btn" data-star="${s}"
+                onmouseenter="pubState.hover=${s};updateStars()"
+                onmouseleave="pubState.hover=0;updateStars()"
+                onclick="pubState.rating=${s};pubState.errors.rating='';updateStars()"
+                style="color:${s<=(hover||rating)?t.brandColor:'var(--bg4)'}">★</button>`).join('')}
+          </div>
+          ${rating>0?`<div style="font-size:11px;color:var(--text2)">${starLabels[rating]}</div>`:''}
+          ${pubState.errors.rating?`<div class="field-error">${pubState.errors.rating}</div>`:''}
+        </div>
+
+        <div class="field" style="margin-bottom:1rem">
+          <label>Your feedback <span style="color:var(--red)">*</span></label>
+          <textarea class="input" rows="4" placeholder="Tell us about your experience…" oninput="pubState.fields.comment=this.value;pubState.errors.comment=''">${pubState.fields.comment}</textarea>
+          <div style="display:flex;justify-content:space-between;margin-top:3px">
+            <span class="field-error">${pubState.errors.comment||''}</span>
+            <span style="font-size:10px;color:var(--text3)">${pubState.fields.comment.length}/1000</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.2rem">
+          <div class="field">
+            <label>Your name <span style="color:var(--red)">*</span></label>
+            <input class="input" value="${pubState.fields.customerName}" placeholder="Jane Doe" oninput="pubState.fields.customerName=this.value;pubState.errors.customerName=''"/>
+            <span class="field-error">${pubState.errors.customerName||''}</span>
+          </div>
+          <div class="field">
+            <label>Email <span style="color:var(--red)">*</span></label>
+            <input class="input" type="email" value="${pubState.fields.customerEmail}" placeholder="jane@email.com" oninput="pubState.fields.customerEmail=this.value;pubState.errors.customerEmail=''"/>
+            <span class="field-error">${pubState.errors.customerEmail||''}</span>
+          </div>
+        </div>
+
+        <button class="btn" style="width:100%;padding:11px;font-size:14px;font-weight:600;background:${t.brandColor};color:#fff;border-radius:var(--radius)" id="pub-submit-btn" onclick="submitFeedback('${slug}')">
+          Submit Feedback
+        </button>
+      </div>
+      <div style="text-align:center;margin-top:1rem;font-size:11px;color:var(--text3);cursor:pointer" onclick="navigate('landing')">
+        Powered by <span style="color:var(--accent)">FeedbackHub</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EVENT HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════
+function handleLogin(){
+  const email=document.getElementById('login-email')?.value||'';
+  const password=document.getElementById('login-password')?.value||'';
+  if(!email||!password){ setAuthError('Please fill in all fields'); return; }
+  const result=Store.login(email,password);
+  if(result.error){ setAuthError(result.error); return; }
+  navigate('dashboard');
+}
+
+function handleRegister(){
+  const name=document.getElementById('reg-name')?.value?.trim()||'';
+  const email=document.getElementById('reg-email')?.value?.trim()||'';
+  const password=document.getElementById('reg-password')?.value||'';
+  const slug=document.getElementById('reg-slug')?.value?.trim().toLowerCase()||'';
+  if(!name||!email||!password||!slug){ setAuthError('All fields are required'); return; }
+  if(password.length<8){ setAuthError('Password must be at least 8 characters'); return; }
+  const result=Store.register({businessName:name,email,password,slug});
+  if(result.error){ setAuthError(result.error); return; }
+  navigate('dashboard');
+}
+
+function setAuthError(msg){
+  const el=document.getElementById('auth-error');
+  if(el) el.innerHTML=`<div class="alert alert-error">${msg}</div>`;
+}
+
+function handleLogout(){ Store.logout(); navigate('landing'); }
+
+function fbFilter(key, val){ fbState={...fbState,[key]:val,page:1}; render(); }
+function fbSort(val){ const[s,o]=val.split('-'); fbState={...fbState,sortBy:s,order:o,page:1}; render(); }
+function fbPage(p){ fbState={...fbState,page:p}; render(); }
+function clearFilters(){ fbState={...fbState,rating:'',search:'',page:1}; render(); }
+let searchTimer;
+function debounceSearch(val){ clearTimeout(searchTimer); searchTimer=setTimeout(()=>{ fbState={...fbState,search:val,page:1}; render(); },300); }
+
+function confirmDelete(id){
+  const modal=document.getElementById('confirm-modal'); if(!modal) return;
+  modal.innerHTML=`<div class="modal-backdrop">
+    <div class="modal">
+      <h3>Delete feedback?</h3>
+      <p>This action cannot be undone. The feedback entry will be permanently removed.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="doDelete('${id}')">Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+function closeModal(){ const m=document.getElementById('confirm-modal'); if(m) m.innerHTML=''; }
+function doDelete(id){
+  const t=appState.session; if(!t) return;
+  const result=Store.deleteFeedback(id,t.id);
+  if(result.error){ showToast('Could not delete feedback','error'); return; }
+  closeModal();
+  showToast('Feedback deleted');
+  render();
+}
+
+function updateSettingsField(key,val){
+  if(!settingsForm) return;
+  settingsForm={...settingsForm,[key]:val};
+  const prev=document.getElementById('settings-preview-box');
+  if(prev) prev.innerHTML=renderSettingsPreview();
+  if(key==='brandColor'){
+    const ct=document.getElementById('s-color-text');
+    if(ct&&document.activeElement!==ct) ct.value=val;
+  }
+}
+function saveSettings(){
+  const t=appState.session; if(!t||!settingsForm) return;
+  Store.updateTenant(t.id,settingsForm);
+  showToast('Settings saved!');
+  settingsForm=null;
+}
+function resetSettings(){
+  settingsForm=null;
+  render();
+}
+
+function submitFeedback(slug){
+  const f=pubState.fields;
+  const errors={};
+  if(!pubState.rating) errors.rating='Please select a rating';
+  if(f.comment.length<10) errors.comment='Comment must be at least 10 characters';
+  if(f.comment.length>1000) errors.comment='Comment must be under 1000 characters';
+  if(!f.customerName||f.customerName.length<2) errors.customerName='Name must be at least 2 characters';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.customerEmail)) errors.customerEmail='Valid email required';
+  if(Object.keys(errors).length){ pubState.errors=errors; render(); return; }
+  const result=Store.submitFeedback(slug,{rating:pubState.rating,...f});
+  if(result.error){ pubState.error=result.error; render(); return; }
+  pubState={rating:0,hover:0,submitted:true,error:'',fields:{comment:'',customerName:'',customerEmail:''},errors:{}};
+  render();
+}
+
+function updateStars(){
+  const row=document.getElementById('star-row'); if(!row) return;
+  const btns=row.querySelectorAll('.star-btn');
+  const active=pubState.hover||pubState.rating;
+  const color=pubTenant?.brandColor||'var(--accent)';
+  btns.forEach((btn,i)=>{ btn.style.color=i<active?color:'var(--bg4)'; });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ROUTER & RENDER
+// ═══════════════════════════════════════════════════════════════════════════
+function render(){
+  const {route, routeParam, session, toast} = appState;
+  let html='';
+
+  if(route==='landing') html=LandingPage();
+  else if(route==='login') html=LoginPage();
+  else if(route==='register') html=RegisterPage();
+  else if(route==='public') html=PublicPage(routeParam);
+  else if(session){
+    if(route==='dashboard') html=OverviewPage();
+    else if(route==='feedback') html=FeedbackPage();
+    else if(route==='settings'){ initSettingsForm(); html=SettingsPage(); }
+    else html=OverviewPage();
+  } else {
+    navigate('login'); return;
+  }
+
+  document.getElementById('root').innerHTML = html + (toast?`
+    <div class="toast toast-${toast.type}">
+      <span>${toast.type==='success'?'✓':'✗'}</span>${toast.msg}
+    </div>`:'');
+}
+
+// keyboard shortcut: Enter on login/register
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  if(appState.route==='login') handleLogin();
+  if(appState.route==='register') handleRegister();
+});
+
+render();
+</script>
+</body>
+</html>
